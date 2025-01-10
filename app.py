@@ -8,7 +8,7 @@ from streamlit_option_menu import option_menu
 st.title("Gestión de Tiempos y Proyectos")
 
 # Ruta del archivo CSV (en la misma carpeta que el script)
-CSV_PATH = "archivo.csv"  # Cambia el nombre a tu archivo CSV
+CSV_PATH = "testdos.csv"  # Cambia el nombre a tu archivo CSV
 
 # Función para cargar el CSV
 def cargar_csv():
