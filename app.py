@@ -34,7 +34,7 @@ else:
     with st.sidebar:
         menu = option_menu(
             menu_title="Menú",
-            options=["Filtrar datos", "Ver recursos", "Editar CSV"],
+            options=["Filtrar datos", "Ver recursos", "Editar"],
             icons=["filter", "eye", "pencil"],
             menu_icon="cast",
             default_index=0,
