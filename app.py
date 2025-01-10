@@ -152,15 +152,15 @@ else:
             else:
                 st.error("Clave incorrecta. No puede acceder a la información de 'Recurso'.")
 
-    elif menu == "Editar CSV":
+    elif menu == "Editar":
         # Funcionalidad para editar el CSV
-        st.subheader("Edición del CSV")
+        st.subheader("Edición de Datos")
         edited_df = st.data_editor(df, use_container_width=True, num_rows="dynamic")
 
         # Botón para guardar cambios
         if st.button("Guardar cambios"):
             edited_df.to_csv(CSV_PATH, index=False)
-            st.success("Cambios guardados exitosamente en el archivo CSV.")
+            st.success("Cambios guardados exitosamente.")
 
 
 
