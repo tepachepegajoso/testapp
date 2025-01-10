@@ -52,41 +52,17 @@ else:
         actividades = datos_filtrados_mes["Actividad"].unique()
         actividades_seleccionadas = st.multiselect("Seleccione actividades", sorted(actividades))
 
-        # Si se seleccionan actividades, mostrar las métricas y generar la gráfica
+        # Si se seleccionan actividades, generar la gráfica primero
         if actividades_seleccionadas:
             total_horas_por_actividad = []
 
-            # Mostrar las horas por actividad
+            # Crear la gráfica de barras con estilo de barras delgadas
             for actividad in actividades_seleccionadas:
-                st.write(f"### Actividad: {actividad}")
                 datos_actividad = datos_filtrados_mes[datos_filtrados_mes["Actividad"] == actividad]
-
-                # Resumen de horas
                 total_horas = datos_actividad["HR asignadas"].sum()
-                st.metric(label=f"Horas invertidas en {actividad}", value=f"{total_horas} horas")
-
-                # Agregar a la lista para el gráfico combinado
                 total_horas_por_actividad.append((actividad, total_horas))
 
-                # Mostrar proyectos y descripciones con el color de fondo intercalado
-                if st.checkbox(f"Mostrar proyectos y descripciones para {actividad}", key=f"check_{actividad}"):
-                    proyectos_descripciones = datos_actividad[["Proyecto", "Descripción"]].drop_duplicates()
-
-                    if not proyectos_descripciones.empty:
-                        html_content = """<style>
-                                          table {width: 100%;}
-                                          th, td {border: 1px solid #ddd; padding: 8px;}
-                                          tr:nth-child(even) {background-color: #9b2148; color: white;}
-                                          tr:nth-child(odd) {background-color: #a87f2f; color: white;}
-                                          </style><table>"""
-                        # Agregar cabecera de la tabla
-                        html_content += "<tr><th>Proyecto</th><th>Descripción</th></tr>"
-                        for _, row in proyectos_descripciones.iterrows():
-                            html_content += f"<tr><td>{row['Proyecto']}</td><td>{row['Descripción']}</td></tr>"
-                        html_content += "</table>"
-                        st.markdown(html_content, unsafe_allow_html=True)
-
-            # Mostrar gráfico combinado en la parte inferior de las actividades seleccionadas
+            # Crear gráfico solo si hay datos de actividades seleccionadas
             if total_horas_por_actividad:
                 st.write("### Resumen de todas las actividades seleccionadas")
                 resumen_df = pd.DataFrame(total_horas_por_actividad, columns=["Actividad", "HR asignadas"])
@@ -108,6 +84,35 @@ else:
 
                 # Mostrar el gráfico en Streamlit
                 st.plotly_chart(fig, use_container_width=True)
+
+            # Después de la gráfica, mostrar las horas por actividad y otros detalles
+            for actividad in actividades_seleccionadas:
+                st.write(f"### Actividad: {actividad}")
+                datos_actividad = datos_filtrados_mes[datos_filtrados_mes["Actividad"] == actividad]
+
+                # Resumen de horas
+                total_horas = datos_actividad["HR asignadas"].sum()
+                st.metric(label=f"Horas invertidas en {actividad}", value=f"{total_horas} horas")
+
+                # Mostrar proyectos y descripciones con el color de fondo intercalado
+                if st.checkbox(f"Mostrar proyectos y descripciones para {actividad}", key=f"check_{actividad}"):
+                    proyectos_descripciones = datos_actividad[["Proyecto", "Descripción"]].drop_duplicates()
+
+                    if not proyectos_descripciones.empty:
+                        # Usar un contenedor para garantizar que el contenido ocupe el ancho completo
+                        with st.container():
+                            html_content = """<style>
+                                              table {width: 100%;}
+                                              th, td {border: 1px solid #ddd; padding: 8px;}
+                                              tr:nth-child(even) {background-color: #9b2148; color: white;}
+                                              tr:nth-child(odd) {background-color: #a87f2f; color: white;}
+                                              </style><table>"""
+                            # Agregar cabecera de la tabla
+                            html_content += "<tr><th>Proyecto</th><th>Descripción</th></tr>"
+                            for _, row in proyectos_descripciones.iterrows():
+                                html_content += f"<tr><td>{row['Proyecto']}</td><td>{row['Descripción']}</td></tr>"
+                            html_content += "</table>"
+                            st.markdown(html_content, unsafe_allow_html=True)
 
     elif menu == "Ver recursos":
         # Mostrar columna "Recurso" con datos asociados solo con clave correcta
@@ -137,18 +142,19 @@ else:
                 recursos_filtrados = datos_recurso[["Recurso", "Proyecto", "Actividad", "Descripción"]].drop_duplicates()
                 
                 # Aplicar colores intercalados con fondo alternado entre #9b2148 y #a87f2f
-                html_content = """<style>
-                                  table {width: 100%;}
-                                  th, td {border: 1px solid #ddd; padding: 8px;}
-                                  tr:nth-child(even) {background-color: #9b2148; color: white;}
-                                  tr:nth-child(odd) {background-color: #a87f2f; color: white;}
-                                  </style><table>"""
-                # Agregar cabecera de la tabla
-                html_content += "<tr><th>Recurso</th><th>Proyecto</th><th>Actividad</th><th>Descripción</th></tr>"
-                for _, row in recursos_filtrados.iterrows():
-                    html_content += f"<tr><td>{row['Recurso']}</td><td>{row['Proyecto']}</td><td>{row['Actividad']}</td><td>{row['Descripción']}</td></tr>"
-                html_content += "</table>"
-                st.markdown(html_content, unsafe_allow_html=True)
+                with st.container():
+                    html_content = """<style>
+                                      table {width: 100%;}
+                                      th, td {border: 1px solid #ddd; padding: 8px;}
+                                      tr:nth-child(even) {background-color: #9b2148; color: white;}
+                                      tr:nth-child(odd) {background-color: #a87f2f; color: white;}
+                                      </style><table>"""
+                    # Agregar cabecera de la tabla
+                    html_content += "<tr><th>Recurso</th><th>Proyecto</th><th>Actividad</th><th>Descripción</th></tr>"
+                    for _, row in recursos_filtrados.iterrows():
+                        html_content += f"<tr><td>{row['Recurso']}</td><td>{row['Proyecto']}</td><td>{row['Actividad']}</td><td>{row['Descripción']}</td></tr>"
+                    html_content += "</table>"
+                    st.markdown(html_content, unsafe_allow_html=True)
             else:
                 st.error("Clave incorrecta. No puede acceder a la información de 'Recurso'.")
 
